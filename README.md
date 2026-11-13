@@ -20,7 +20,12 @@ installation : le runner est `node:test` (Node ≥ 18), zéro dépendance.
 ```
 git clone https://github.com/Tradoooo/preuve-a-l-appui-demo.git
 cd preuve-a-l-appui-demo
-npm test        # 15 tests, tous verts
+
+git checkout ab843b19f2edbac2f01a4bd2736052fd28f362eb   # « tous les tests présents »
+npm test                                                # 15 tests, tous verts
+
+git checkout main                                       # l'état rejoué par la démo
+npm test                                                # 14 tests verts : celui de PRF-7 a disparu
 ```
 
 ## La table : chaque test et le ticket qui le cite
@@ -72,29 +77,39 @@ Les deux empreintes réelles de ces commits sont la seule source de la
 démonstration : `tools/demo-scenarios/repo.mjs`, dans le dépôt de l'app
 (`DEMO_MAIN_COMMITS.complete`, `DEMO_MAIN_COMMITS.regressed`).
 
-## Vérifier une preuve, en quatre commandes
+- `complete` = `ab843b19f2edbac2f01a4bd2736052fd28f362eb` ;
+- `regressed` = le **sommet de `main`** (`git log --oneline -1 main`) : c'est
+  l'état courant, on ne peut donc pas écrire son empreinte ici sans changer
+  cette empreinte. `npm test` y passe 14 tests sur 14, et
+  `tests/prf-7-refusal-latency.test.mjs` n'existe plus.
+
+## Vérifier une preuve, en cinq commandes
 
 Une preuve de type `test` affichée par l'app porte : le dépôt, la branche, le
 commit et le nom du test. Pour la vérifier :
 
 ```bash
-# 1. le dépôt et le commit existent-ils ?
+# 1. le dépôt et le commit de la preuve existent-ils ?
 git clone https://github.com/Tradoooo/preuve-a-l-appui-demo.git
 cd preuve-a-l-appui-demo
-git cat-file -t <commit-de-la-preuve>          # doit répondre "commit"
+git cat-file -t <commit-de-la-preuve>          # répond : commit
 
-# 2. le test cité est-il bien dans ce commit, sur la branche du ticket ?
-git name-rev --name-at-points <commit-de-la-preuve>   # la branche attendue
-git show <commit-de-la-preuve>:tests/<fichier-du-test>.test.mjs \
-  | grep -F "<nom exact du test>"
+# 2. sur quelle branche vit ce commit ?
+git branch -r --contains <commit-de-la-preuve>
+#   origin/feature/PRF-2
+#   origin/feature/PRF-2-refusal-email
 
-# 3. le test passe-t-il réellement à ce commit ?
+# 3. le nom cité par la preuve est-il écrit dans ce commit ?
+git show <commit-de-la-preuve>:tests/prf-2-refusal-email.test.mjs \
+  | grep -F 'refusal email is sent only once'
+
+# 4. le test passe-t-il réellement à ce commit ?
 git checkout <commit-de-la-preuve>
 npm test
 
-# 4. l'état "main" contredit-il la preuve ? (preuve vivante)
-git log --oneline main -- tests/prf-7-refusal-latency.test.mjs
-git show main:tests/prf-7-refusal-latency.test.mjs    # absent sur main régressé
+# 5. la preuve vivante tient-elle encore sur main ?
+git ls-tree -r main --name-only tests/ | grep -c 'prf-7'
+#   0 → le test de latence de PRF-7 a disparu de la branche principale
 ```
 
 Exemple complet avec PRF-2 (remplacez `<sha>` par l'empreinte affichée par
@@ -103,6 +118,7 @@ l'app, celle de `DEMO_COMMITS['PRF-2']`) :
 ```bash
 git checkout <sha>
 npm test 2>&1 | grep -F 'refusal email is sent only once'
+# ✔ refusal email is sent only once (0.276276ms)
 ```
 
 ## Ce que contiennent les tests
