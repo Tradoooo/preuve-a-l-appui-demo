@@ -77,11 +77,11 @@ Les deux empreintes réelles de ces commits sont la seule source de la
 démonstration : `tools/demo-scenarios/repo.mjs`, dans le dépôt de l'app
 (`DEMO_MAIN_COMMITS.complete`, `DEMO_MAIN_COMMITS.regressed`).
 
-- `complete` = `ab843b19f2edbac2f01a4bd2736052fd28f362eb` ;
-- `regressed` = le **sommet de `main`** (`git log --oneline -1 main`) : c'est
-  l'état courant, on ne peut donc pas écrire son empreinte ici sans changer
-  cette empreinte. `npm test` y passe 14 tests sur 14, et
-  `tests/prf-7-refusal-latency.test.mjs` n'existe plus.
+- `complete` = `ab843b19f2edbac2f01a4bd2736052fd28f362eb` : `npm test` → 15 / 15 ;
+- `regressed` = `cb1add2f3045f3abe50a783a13f187f845d02311`, le commit qui retire
+  le test : `npm test` → 14 / 14, et
+  `tests/prf-7-refusal-latency.test.mjs` n'existe plus. (`main` a depuis un
+  commit de documentation, `4807285`, qui ne touche à aucune suite.)
 
 ## Vérifier une preuve, en cinq commandes
 
