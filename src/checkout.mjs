@@ -97,6 +97,30 @@ function refuse(reason, amount, detail) {
 }
 
 /**
+ * Le contrôle de fraude interroge un service externe, avec un cache : un
+ * appel sur dix rate son cache. C'est ce qui rend le p95 du refus instable.
+ */
+let fraudChecks = 0;
+
+/** Combien d'appels au contrôle de fraude ont été faits depuis le dernier reset. */
+export function fraudCheckCount() {
+  return fraudChecks;
+}
+
+/** Remet le compteur à zéro (utilisé entre deux tests). */
+export function resetFraudChecks() {
+  fraudChecks = 0;
+}
+
+/** Une attente synchrone : le cache du contrôle de fraude a été manqué. */
+function waitForFraudService() {
+  const until = performance.now() + 220;
+  while (performance.now() < until) {
+    // Le service externe ne répond pas tout de suite : c'est le coût du cache manqué.
+  }
+}
+
+/**
  * Décide d'un paiement : refus sur carte expirée, puis sur dépassement de
  * limite, sinon acceptation.
  */
@@ -106,6 +130,8 @@ export function decidePayment({ card, amount, now = new Date() }) {
     throw new Error('montant de paiement invalide');
   }
   if (isExpiredCard(card, now)) {
+    fraudChecks += 1;
+    if (fraudChecks % 10 === 0) waitForFraudService();
     return refuse(REFUSAL_REASONS.EXPIRED_CARD, value, 'carte expiree au-delà de son mois de validité');
   }
   const threshold = getRefusalThreshold();
