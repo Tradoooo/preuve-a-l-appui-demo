@@ -1,0 +1,14 @@
+{
+  "name": "preuve-a-l-appui-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Les tests réels cités par les preuves de la démonstration « Fait, preuve à l'appui ».",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
