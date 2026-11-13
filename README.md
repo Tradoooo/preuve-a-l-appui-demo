@@ -78,10 +78,17 @@ démonstration : `tools/demo-scenarios/repo.mjs`, dans le dépôt de l'app
 (`DEMO_MAIN_COMMITS.complete`, `DEMO_MAIN_COMMITS.regressed`).
 
 - `complete` = `ab843b19f2edbac2f01a4bd2736052fd28f362eb` : `npm test` → 15 / 15 ;
-- `regressed` = `cb1add2f3045f3abe50a783a13f187f845d02311`, le commit qui retire
-  le test : `npm test` → 14 / 14, et
-  `tests/prf-7-refusal-latency.test.mjs` n'existe plus. (`main` a depuis un
-  commit de documentation, `4807285`, qui ne touche à aucune suite.)
+- `regressed` = `cb1add2f3045f3abe50a783a13f187f845d02311` : `npm test` → 14 / 14,
+  et `tests/prf-7-refusal-latency.test.mjs` n'existe plus.
+
+`main` a depuis des commits de **documentation** (celui-ci compris) : ils ne
+touchent à aucune suite de tests, donc les deux empreintes ci-dessus restent
+valables quel que soit le sommet de `main`. Pour les retrouver :
+
+```bash
+git log --oneline main
+git show --stat cb1add2f3045f3abe50a783a13f187f845d02311   # le test retire
+```
 
 ## Vérifier une preuve, en cinq commandes
 
