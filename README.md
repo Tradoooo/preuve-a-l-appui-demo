@@ -25,7 +25,7 @@ git checkout ab843b19f2edbac2f01a4bd2736052fd28f362eb   # « tous les tests pré
 npm test                                                # 15 tests, tous verts
 
 git checkout main                                       # l'état rejoué par la démo
-npm test                                                # 14 tests verts : celui de PRF-7 a disparu
+npm test                                                # 14 verts, 1 rouge : la latence de PRF-7
 ```
 
 ## La table : chaque test et le ticket qui le cite
@@ -68,9 +68,11 @@ Deux remarques :
 
 1. **tous les tests présents** — les quinze tests sont là et `npm test` passe ;
    c'est l'état qui installe la *preuve vivante* des critères livrés ;
-2. **un test a disparu** — `tests/prf-7-refusal-latency.test.mjs` est retiré de
-   la branche principale. Le test de latence de **PRF-7** n'est plus cité par le
-   pipeline sur `main` : la preuve vivante du critère livré tombe, l'app le
+2. **un test est rouge** — sur cette branche principale, le contrôle de fraude
+   rate son cache une fois sur dix : la p95 du refus dépasse le budget
+   (`p95 = 220 ms, budget = 200 ms`) et `npm test` sort en **14 verts, 1 rouge**.
+   Le test de latence de **PRF-7** existe toujours mais échoue : la preuve
+   vivante du critère livré passe de « prouvée » à « régressée », l'app le
    signale sur le ticket et l'opérateur le rouvre.
 
 Les deux empreintes réelles de ces commits sont la seule source de la
